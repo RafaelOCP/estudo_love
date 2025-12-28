@@ -11,6 +11,8 @@ Durante a execução do programa, o algoritmo monitora continuamente as entradas
 
 Após o processamento do movimento, o algoritmo obtém as dimensões atuais da tela, armazenando a largura em SW e a altura em SH. Em seguida, é realizado o controle de limites do jogador através da técnica de clamping (limitação de valores), garantindo que sua posição permaneça dentro da área visível da tela. Caso a coordenada X seja inferior a zero, seu valor é ajustado para zero. Caso a coordenada X ultrapasse o limite máximo permitido, definido como a largura da tela menos a largura do jogador (SW − largura do jogador), seu valor é ajustado para esse limite. Procedimento equivalente é aplicado à coordenada Y, restringindo-a ao intervalo entre zero e a altura máxima permitida (SH − altura do jogador).
 
+Finalmente, renderiza um retângulo preenchido na tela, tendo como ponto de origem as coordenadas (x, y) do objeto player, com largura (w) e altura (h) definidas pelas propriedades do jogador.
+
 Dessa forma, o algoritmo assegura que o jogador possa se mover livremente em todas as direções, respeitando tanto as entradas do usuário quanto os limites físicos do ambiente gráfico.
 
 PSEUDOCÓDIGO
@@ -57,6 +59,10 @@ SE a posição Y do jogador for menor que 0 ENTÃO
 SENÃO SE a posição Y for maior que (SH - altura do jogador) ENTÃO
     Definir Y como (SH - altura do jogador)
 FIM SE
+
+Desenhar retângulo preenchido
+na posição (x, y)
+com largura w e altura h
 ]]
 
 --o objeto criado em love.load
@@ -84,3 +90,6 @@ FIM SE
     local sw, sh = love.graphics.getWidth(), love.graphics.getHeight()
     player.x = math.max(0, math.min(player.x, sw - player.w))
     player.y = math.max(0, math.min(player.y, sh - player.h))
+
+--renderizando o objeto em love.draw
+    love.graphics.rectangle("fill", player.x, player.y, player.w, player.h)
