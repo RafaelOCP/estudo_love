@@ -1,58 +1,59 @@
->>> DISPARANDO PROJÉTEIS:
+>>> DISPARANDO PROJÉTEIS COM KEYPRESSED, CADA APERTO UM DISPARO:
 
---objeto criado em love.load
-    bullet = {
-        x = 0, y = 0,
-        w = 2, h = 10,
-        speed = 400,
-        active = false
+--criar a tabela para cada uma das balas
+--em love.load:
+bullets = {}
+
+--criar uma função para disparar o projétil, note que cada projétil disparado vira uma tabela independente dentro da tabela mãe bullets
+local function shoot(shooter)
+    local b = {
+        x = shooter.x + shooter.w / 2 - 1,
+        y = shooter.y,
+        w = 2,
+        h = 10,
+        speed = 400
     }
-
---função para ativar o tiro e a posição inicial do projétil
-local function shoot()
-    bullet.active = true
-    bullet.x = player.x + player.w / 2 - bullet.w / 2
-    bullet.y = player.y
+    table.insert(bullets, b)
 end
 
---para o movimento do projétil em love.update
-    if bullet.active then
-        bullet.y = bullet.y - bullet.speed * dt
-        if bullet.y + bullet.h < 0 then
-            bullet.active = false
+
+--para o momento do projétil em love.update, veja que se percorre de trás para frente a tabela mãe e para cada projétil e adicionado o movimento. Veja que é feito o código para remover o projétil:
+    for i = #bullets, 1, -1 do
+        local b = bullets[i]
+        b.y = b.y - b.speed * dt
+
+        if b.y + b.h < 0 then
+            table.remove(bullets, i)
         end
     end
 
---callback keypressed para ativar a função do tiro
+--love.keypressed para chamar a função do disparo
 function love.keypressed(key)
-    if key == "space" and not bullet.active then
-        shoot()
+    if key == "space" then
+        shoot(player)
     end
 end
 
---para renderizar o projétil em love.draw
-    if bullet.active then
-        love.graphics.setColor(0, 1, 0)
-        love.graphics.rectangle("fill", bullet.x, bullet.y, bullet.w, bullet.h)
-        love.graphics.setColor(1,1,1)
+--love.draw para desenhar o projétil
+    for _, b in ipairs(bullets) do
+        love.graphics.rectangle("fill", b.x, b.y, b.w, b.h)
     end
 
 
-
->> COOLDOWN DE DISPAROS:
+>>> COOLDOWN DE DISPAROS:
 
 Para coodown de ações ativadas através de love.keypressed
 
 1º Em love.upload na tabela da entidade player por exemplo:
-declarar uma variável shootCoolown = 0.2
-declarar uma variável shootTimer = 0
+declarar uma variável shootCooldown = 0.2 --configuração
+declarar uma variável shootTimer = 0 --estado atual
 
 2º Em love.update:
 player.shootTimer = player.shootTimer - dt
 
 3º Em love.keypressed:
 if key == "space" and player.shootTimer <= 0 then
-    shoot()
+    shoot(player)
     player.shootTimer = player.shootCooldown
 end
 
@@ -85,7 +86,6 @@ O Fire Rate é a sua configuração de fábrica. É o valor que define quão rá
     Um Fire Rate de 1.0 é um canhão lento (atira 1 vez por segundo).
 
 Toda vez que você atira, você "seta" o seu cooldown para o valor do fire rate:
-lua
 
 if canhao_frio then
     atirar()
