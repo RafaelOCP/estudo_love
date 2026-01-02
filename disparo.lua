@@ -1,67 +1,4 @@
---Disparando um projétil
-
---[[
-LINGUAGEM NATURAL
-
-Define-se uma estrutura de dados denominada bullet, responsável por representar um projétil, contendo atributos de posição (x, y), dimensões (largura w e altura h), velocidade de deslocamento vertical (speed) e um estado lógico (active) que indica se o projétil está atualmente em uso.
-
-Uma função local denominada shoot é responsável por inicializar o disparo do projétil. Ao ser chamada, essa função ativa o projétil, posicionando-o horizontalmente no centro do jogador e verticalmente na mesma coordenada superior do personagem.
-
-Durante o ciclo de atualização do jogo, é verificado se o projétil encontra-se ativo. Caso positivo, sua posição vertical é atualizada de forma contínua, deslocando-o para cima com base em sua velocidade e no intervalo de tempo entre quadros (dt). Se o projétil ultrapassar o limite superior da tela, ele é automaticamente desativado.
-
-Um manipulador de eventos de teclado detecta o pressionamento da tecla espaço. Quando essa tecla é acionada e não há um projétil ativo no momento, a função de disparo é executada, garantindo que apenas um projétil possa existir simultaneamente.
-
-No processo de renderização, o sistema verifica novamente se o projétil está ativo. Em caso afirmativo, define-se a cor de desenho para verde e o projétil é renderizado na tela como um retângulo preenchido, utilizando suas coordenadas e dimensões. Após o desenho, a cor padrão de renderização é restaurada.
-
-PSEUDOCÓDIGO
-
-INÍCIO
-
-// Definição do projétil
-CRIAR bullet
-    bullet.x ← 0
-    bullet.y ← 0
-    bullet.w ← 2
-    bullet.h ← 10
-    bullet.speed ← 400
-    bullet.active ← falso
-FIM CRIAR
-
-// Função de disparo
-FUNÇÃO shoot()
-    bullet.active ← verdadeiro
-    bullet.x ← player.x + (player.w / 2) − (bullet.w / 2)
-    bullet.y ← player.y
-FIM FUNÇÃO
-
-// Atualização do projétil
-SE bullet.active = verdadeiro ENTÃO
-    bullet.y ← bullet.y − (bullet.speed × dt)
-
-    SE bullet.y + bullet.h < 0 ENTÃO
-        bullet.active ← falso
-    FIM SE
-FIM SE
-
-// Evento de teclado
-AO PRESSIONAR TECLA key
-    SE key = "espaço" E bullet.active = falso ENTÃO
-        CHAMAR shoot()
-    FIM SE
-FIM EVENTO
-
-// Renderização do projétil
-SE bullet.active = verdadeiro ENTÃO
-    DEFINIR COR PARA verde
-    DESENHAR RETÂNGULO PREENCHIDO
-        NA posição (bullet.x, bullet.y)
-        COM largura bullet.w
-        E altura bullet.h
-    RESTAURAR COR PADRÃO
-FIM SE
-
-FIM
-]]
+>>> DISPARANDO PROJÉTEIS:
 
 --objeto criado em love.load
     bullet = {
@@ -100,7 +37,28 @@ end
         love.graphics.setColor(1,1,1)
     end
 
---PARA JOGOS DE NAVINHA USANDO love.keyboards.isDown, para um aperto e fluxo contínuo
+
+
+>> COOLDOWN DE DISPAROS:
+
+Para coodown de ações ativadas através de love.keypressed
+
+1º Em love.upload na tabela da entidade player por exemplo:
+declarar uma variável shootCoolown = 0.2
+declarar uma variável shootTimer = 0
+
+2º Em love.update:
+player.shootTimer = player.shootTimer - dt
+
+3º Em love.keypressed:
+if key == "space" and player.shootTimer <= 0 then
+    shoot()
+    player.shootTimer = player.shootCooldown
+end
+
+
+
+>>> DISPARO USANDO love.keyboards.isDown, para um aperto e fluxo contínuo
 
 1. O Problema: O "Dedo Nervoso" vs. O Processador
 
@@ -114,9 +72,8 @@ Pense no Cooldown como a temperatura do canhão da sua nave:
     O tempo passa, o canhão esfria (o valor diminui até chegar a zero).
 
 No código:
-lua
 
--- No update, o tempo "esfria" o canhão
+    -- No update, o tempo "esfria" o canhão
 player.cooldown = player.cooldown - dt
 
 O dt (Delta Time) é o segredo aqui. Ele é o tempo real. Se o cooldown era 0.2 e o dt é 0.01, o computador vai subtraindo pedacinhos até que o canhão esteja pronto novamente.
